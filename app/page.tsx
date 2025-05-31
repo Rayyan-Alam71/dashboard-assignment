@@ -12,8 +12,6 @@ export default function Home() {
   })
   return (
     <>
-
-    
       <Header/>
       <Skeleton rows={8} columns={4} showHeader={true} />  
     </>
