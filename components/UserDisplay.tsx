@@ -36,7 +36,7 @@ export default function UserDisplay(){
     
     // Pagination
     const usersPerPage = 5;
-    const totalPages = Math.ceil(filteredUserList.length / usersPerPage)
+    const totalPages = Math.ceil(userList.length / usersPerPage)
     let totalPagesData = [];
 
     for(let i =0; i<totalPages ; i++){
