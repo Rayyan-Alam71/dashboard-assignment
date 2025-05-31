@@ -12,6 +12,7 @@ export default function Home() {
   })
   return (
     <>
+      {/* added just to check */}
       <Header/>
       <Skeleton rows={8} columns={4} showHeader={true} />  
     </>
