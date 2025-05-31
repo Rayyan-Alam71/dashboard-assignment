@@ -1,5 +1,6 @@
 "use client"
 import Header from "@/components/Header";
+import Skeleton from "@/components/Skeleton";
 import {  useRouter } from "next/navigation"
 import { useEffect } from "react";
 
@@ -11,8 +12,8 @@ export default function Home() {
   })
   return (
     <>
-      <h2>Move to /dashboard</h2>
       <Header/>
+      <Skeleton rows={8} columns={4} showHeader={true} />  
     </>
   )
 }

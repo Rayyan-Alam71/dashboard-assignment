@@ -3,15 +3,19 @@
 import axios from "axios"
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react"
+import Skeleton from "./Skeleton";
 
 export default function UserDisplay(){
 
     const [userList, setUserList] = useState<any>([])
     const [searchWord, setSearchWord] = useState<string>("");
     const [currentPage, setCurrentPage] = useState(1);
+    const [ loading , setLoading ] = useState<boolean>(false)
+    const [filteredUserList, setFilteredUserList] = useState<any>([]);
     const router = useRouter()
     useEffect(()=>{
         async function fetchUsers(){
+            setLoading(true)
             const res = await axios.get("https://jsonplaceholder.typicode.com/users")
             const data : any = await res.data;
 
@@ -23,16 +27,20 @@ export default function UserDisplay(){
                 city : user.address.city
             }))
             setUserList(users);
+            setLoading(false);
         }
         fetchUsers()
     },[])
 
-    const filteredUserList = userList.filter((user : any)=>(
-        user.name.toLowerCase().includes(searchWord.toLowerCase()) ||
-        user.city.toLowerCase().includes(searchWord.toLowerCase())
-    ))
-
-    
+    useEffect(() => {
+        setFilteredUserList(
+            userList.filter((user: any) =>
+                user.name.toLowerCase().includes(searchWord.toLowerCase()) ||
+                user.city.toLowerCase().includes(searchWord.toLowerCase())
+            )
+        );
+        setCurrentPage(1)
+    }, [userList, searchWord]);
     
     // Pagination
     const usersPerPage = 5;
@@ -49,12 +57,11 @@ export default function UserDisplay(){
     const endOn = startFrom + usersPerPage;
     const paginatedUsers = filteredUserList.slice(startFrom, endOn)
 
-    console.log("startFrom" + startFrom)
-    console.log("startFrom" + endOn)
 
 
     return(
         <div className="min-h-calc[(100vh - 4rem)] max-w-screen mt-2">
+            
             <div className="w-full px-8 py-6 flex flex-col gap-3 pl-20">
 
                 <div className="flex justify-between w-full items-center">
@@ -67,8 +74,12 @@ export default function UserDisplay(){
                 <input type="text" onChange={(e)=>setSearchWord(e.target.value)} placeholder="Search for name, city..." className="border-[1px] py-2 border-black rounded-lg w-1/3 px-6"/>
             </div>
 
+            {loading && <Skeleton rows={8} columns={4} showHeader={true}/> }
+            {}
             <div className="mt-6 ">
-                <div className="w-full px-24 pb-2 text-md">Showing {startFrom+1} to {endOn} users from total {userList.length} users.</div>
+                <div className="w-full px-24 pb-2 text-md">
+                    Showing {filteredUserList.length === 0 ? 0 : startFrom + 1} to {Math.min(endOn, filteredUserList.length)} users from total {filteredUserList.length} filtered users.
+                </div>
                 <div className="mx-20  px-10 py-6 rounded-lg z-10 border-[1px] border-gray-500">
                 <table className="w-full">
                     <thead className="bg-gray-50 text-left text-sm uppercase text-gray-500 dark:bg-gray-700 dark:text-gray-400">
@@ -80,7 +91,6 @@ export default function UserDisplay(){
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-200 dark:divide-gray-700">  
-                        {console.log(filteredUserList)}                                   
                         {paginatedUsers.map((user : any)=>(
                             <tr key={user.id} className="bg-white dark:bg-gray-800">
                                 <td className="px-6 py-4">
@@ -93,18 +103,18 @@ export default function UserDisplay(){
                                 <div className="h-4 w-[120px] rounded">{user.city}</div>
                                 </td>
                                 <td className="px-6 py-4">
-                                <div className="h-4 w-[100px] rounded bg-gray-200 dark:bg-gray-700">{user.phone}</div>
+                                <div className="h-4 w-[200px] rounded ">{user.phone}</div>
                                 </td>
                             </tr>
                         ))}
                     </tbody>
                 </table>
             </div>
-
+                        
             <div className="flex justify-center w-full gap-2 items-center pt-6">
                 {totalPagesData.map((data)=>(
                     <button key={data.pageNumber} onClick={(e)=>setCurrentPage(data.pageNumber)}>
-                        <div className={`h-8 w-8 border-[1px] rounded-lg bg-black flex justify-center items-center text-white text-md cursor-pointer ${data.pageNumber === currentPage ? "h-10 w-10 text-xl" : ""}`}>
+                        <div className={` border-[1px] rounded-lg border-black flex justify-center items-center  cursor-pointer ${data.pageNumber === currentPage ? "h-10 w-10 text-xl bg-black text-white" : "h-8 w-8 text-md bg-white text-black"}`}>
                             {data.pageNumber} 
                         </div>
                     </button>

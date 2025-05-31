@@ -1,6 +1,6 @@
 "use client"
 import { useState } from "react";
-import { Check } from 'lucide-react';
+import { ArrowLeftFromLine, ArrowLeftFromLineIcon, Check, MapPinHouseIcon, PackageCheckIcon, User } from 'lucide-react';
 import { useRouter } from "next/navigation";
 const UserAddForm = () =>{
     const router = useRouter()
@@ -33,6 +33,7 @@ const UserAddForm = () =>{
     }
 
     function errorHandleFormOne(){
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         let hasError = false;
         if(formData.name === ''){
             setError((prev : any) =>({
@@ -41,7 +42,7 @@ const UserAddForm = () =>{
             }))
             hasError = true;
         }
-        if(formData.email === '' || !formData.email.includes('@')){
+        if(formData.email === '' || !emailRegex.test(formData.email)){
             setError((prev : any) =>({
                 ...prev , 
                 email : true
@@ -116,46 +117,52 @@ const UserAddForm = () =>{
     }
     return(
         <div className="w-full flex flex-col justify-center gap-1 items-center mt-20">
-            <div className="flex justify-center gap-8 items-center mb-4">
+            <div className="flex flex-start w-3/4">
+                <button onClick={()=>router.push("/dashboard")}><div className="flex justify-center items-center gap-4 cursor-pointer text-lg text-gray-100 rounded-lg bg-black px-4 py-2 font-serif ">
+                <ArrowLeftFromLineIcon />    
+                Go To Dashboard
+            </div></button>
+            </div>
+            <div className="flex justify-around items-center mb-4 w-1/3">
                 {/* for step circles */}
                 {(step === 2 || stepOnePassed) ? (
-                    <div className="h-12 w-12 bg-green-600 rounded-[50%] border-[2px] border-black flex justify-center items-center text-lg font-bold"><Check/></div>
+                    <div className="h-12 w-12 bg-black rounded-[50%] border-[2px] border-black flex justify-center items-center text-lg text-white font-bold"><Check/></div>
                 ) : (
-                    <div className="h-12 w-12 bg-white rounded-[50%] border-[2px] border-black flex justify-center items-center text-lg font-bold">1</div>
+                    <div className="h-12 w-12 bg-white rounded-[50%] border-[2px] border-gray-500 flex justify-center items-center text-lg text-gray-500 font-bold"><User /></div>
                 )}
 
                 {step === 3 ? (
-                    <div className="h-12 w-12 bg-green-600 rounded-[50%] border-[2px] border-black flex justify-center items-center text-lg font-bold"><Check/></div>
+                    <div className="h-12 w-12 bg-black rounded-[50%] border-[2px] border-black flex justify-center items-center text-lg text-white font-bold"><Check/></div>
                 ) : (
-                    <div className="h-12 w-12 bg-white rounded-[50%] border-[2px] border-black flex justify-center items-center text-lg font-bold">2</div>
+                    <div className="h-12 w-12 bg-white rounded-[50%] border-[2px] border-gray-500 flex justify-center items-center text-lg text-gray-500 font-bold"><MapPinHouseIcon /></div>
                 )}
 
                 {submitted  ? (
-                     <div className="h-12 w-12 bg-green-600 rounded-[50%] border-[2px] border-black flex justify-center items-center text-lg font-bold"><Check/></div>
+                     <div className="h-12 w-12 bg-black rounded-[50%] border-[2px] border-black flex justify-center items-center text-lg text-white font-bold"><Check/></div>
                 ):(
-                    <div className="h-12 w-12 bg-white rounded-[50%] border-[2px] border-black flex justify-center items-center text-lg font-bold">3</div>
+                    <div className="h-12 w-12 bg-white rounded-[50%] border-[2px] border-gray-500 flex justify-center items-center text-lg text-gray-500 font-bold"><PackageCheckIcon /></div>
                 )}
             </div>
 
-            <div className="bg-fuchsia-50 w-3/5 rounded-lg z-10">
+            <div className="bg-white border-[2px] border-gray-200 w-1/2 rounded-lg z-10 font-serif">
                 {/* for step forms */}
 
                 {step === 1 && (
                    <>
                     <div className="flex justify-center py-4 text-xl font-semibold">
-                        <h3>Step 1 : Basic Info</h3>
+                        <p className="text-2xl font-serif text-gray-700">Step 1 : Basic Info</p>
                     </div>
                     
                     <div className="py-6 flex flex-col gap-6">
                         <div className="flex flex-col gap-1 pl-10">
-                            <p className="text-md ">Enter Name</p>
+                            <p className="text-lg ">Enter Name</p>
 
-                            <input type="text" className="w-1/2 py-2 px-3 border-[1px] border-black rounded-lg" name = "name" placeholder="Enter your name....." onChange={handleInputChange} required/>
+                            <input type="text" className="w-1/2 py-2 px-3 border-[1px] border-black rounded-lg text-md text-gray-800" name = "name" placeholder="Enter your name....." onChange={handleInputChange} required/>
                             {error.name && <p className="text-red-600">Name must not be empty.</p>}
                         </div>
                         <div className="flex flex-col gap-1 pl-10">
-                            <p className="text-md ">Enter Email</p>
-                            <input type="email" className="w-1/2 py-2 px-3 border-[1px] border-black rounded-lg"
+                            <p className="text-lg ">Enter Email</p>
+                            <input type="email" className="w-1/2 py-2 px-3 border-[1px] border-black rounded-lg text-md text-gray-800"
                             name="email"
                             placeholder="Enter your email...."
                             onChange={handleInputChange} required/>
@@ -164,7 +171,7 @@ const UserAddForm = () =>{
                     </div>
 
                     <div className="flex flex-row-reverse pb-6 pr-10 ">
-                        <button className="border-[1px] bg-black text-white text-md  px-3 py-2 rounded-lg cursor-pointer" onClick={handleStepOneNext}> Next </button>
+                        <button className="border-[1px] bg-black text-white text-lg  px-4 py-2 rounded-lg cursor-pointer" onClick={handleStepOneNext}> Next </button>
                     </div>
                    </>
                 )}
@@ -172,31 +179,31 @@ const UserAddForm = () =>{
                 {step === 2 && (
                    <>
                     <div className="flex justify-center py-4 text-xl font-semibold">
-                        <h3>Step 2 : Address Info </h3>
+                        <p className="text-2xl font-serif text-gray-700">Step 2 : Address Info </p>
                     </div>
                     
                     <div className="py-6 flex flex-col gap-6">
                         <div className="flex flex-col gap-1 pl-10">
-                            <p className="text-md ">Enter Street</p>
+                            <p className="text-lg ">Enter Street</p>
 
-                            <input type="text" className="w-1/2 py-2 px-3 border-[1px] border-black rounded-lg" name = "street" placeholder="Enter your street....." onChange={handleInputChange} required/>
+                            <input type="text" className="w-1/2 py-2 px-3 border-[1px] border-black rounded-lg text-md text-gray-800" name = "street" placeholder="Enter your street....." onChange={handleInputChange} required/>
                             {error.street && <p className="text-red-600">Street must not be empty.</p>}
 
 
                         </div>
                         <div className="flex flex-col gap-1 pl-10">
-                            <p className="text-md ">Enter City</p>
+                            <p className="text-lg ">Enter City</p>
 
-                            <input type="text" className="w-1/2 py-2 px-3 border-[1px] border-black rounded-lg"
+                            <input type="text" className="w-1/2 py-2 px-3 border-[1px] border-black rounded-lg text-md text-gray-800"
                             name="city"
                             placeholder="Enter your city...."
                             onChange={handleInputChange} required/>
                             {error.city && <p className="text-red-600">City must not be empty.</p>}
                         </div>
                         <div className="flex flex-col gap-1 pl-10">
-                            <p className="text-md ">Enter Zip Code</p>
+                            <p className="text-lg ">Enter Zip Code</p>
 
-                            <input type="number" className="w-1/2 py-2 px-3 border-[1px] border-black rounded-lg"
+                            <input type="number" className="w-1/2 py-2 px-3 border-[1px] border-black rounded-lg text-md text-gray-800"
                             name="zip"
                             placeholder="Enter your zip code...."
                             onChange={handleInputChange} required/>
@@ -211,9 +218,9 @@ const UserAddForm = () =>{
                 )}
 
                 {step === 3 && (
-                   <>
+                    <>
                     <div className="flex justify-center py-4 text-xl font-semibold">
-                        <h3>Step 3: Review and Confirm </h3>
+                        <p className="text-2xl font-serif text-gray-700">Step 3 : Review and Confirm </p>
                     </div>
                     
                     <div className="py-6 flex flex-col gap-6">
