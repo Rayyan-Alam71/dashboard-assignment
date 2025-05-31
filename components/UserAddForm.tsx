@@ -1,8 +1,12 @@
 "use client"
-import { useState } from "react";
+import { useContext, useState } from "react";
 import { ArrowLeftFromLine, ArrowLeftFromLineIcon, Check, MapPinHouseIcon, PackageCheckIcon, User } from 'lucide-react';
 import { useRouter } from "next/navigation";
+import { UserContext } from "@/app/dashboard/layout";
+
 const UserAddForm = () =>{
+    
+    const {userListContext, setUserListContext} = useContext(UserContext);
     const router = useRouter()
     const [step , setStep] = useState(1);
     const [formData, setFormData] = useState<any>({
@@ -31,7 +35,7 @@ const UserAddForm = () =>{
             [e.target.name] : false
         }))
     }
-
+    
     function errorHandleFormOne(){
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         let hasError = false;
@@ -98,6 +102,15 @@ const UserAddForm = () =>{
         e.preventDefault()
         setSubmitted(true)
         // use recoil to add the new user to the userList
+        
+        const newUser = {
+            id : Math.ceil(Math.random()*(10000)),
+            name : formData.name,
+            email : formData.email,
+            city: formData.city,
+            phone : "XXX-XXX-XXXX"
+        }
+        setUserListContext((prev : any)=>([ newUser , ...prev ]))
         alert(`${formData.name} added succesfully`)
         router.push("/dashboard")
     }
@@ -116,7 +129,7 @@ const UserAddForm = () =>{
         setStepOnePassed(false)
     }
     return(
-        <div className="w-full flex flex-col justify-center gap-1 items-center mt-20">
+        <div className="w-full flex flex-col justify-center gap-1 items-center mt-20 font-serif">
             <div className="flex flex-start w-3/4">
                 <button onClick={()=>router.push("/dashboard")}><div className="flex justify-center items-center gap-4 cursor-pointer text-lg text-gray-100 rounded-lg bg-black px-4 py-2 font-serif ">
                 <ArrowLeftFromLineIcon />    

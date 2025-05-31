@@ -2,8 +2,9 @@
 
 import axios from "axios"
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react"
+import { useContext, useEffect, useState } from "react"
 import Skeleton from "./Skeleton";
+import { UserContext } from "@/app/dashboard/layout";
 
 export default function UserDisplay(){
 
@@ -12,7 +13,11 @@ export default function UserDisplay(){
     const [currentPage, setCurrentPage] = useState(1);
     const [ loading , setLoading ] = useState<boolean>(false)
     const [filteredUserList, setFilteredUserList] = useState<any>([]);
-    const router = useRouter()
+
+    const {userListContext , setUserListContext}  = useContext(UserContext)
+
+    const router = useRouter();
+
     useEffect(()=>{
         async function fetchUsers(){
             setLoading(true)
@@ -29,8 +34,9 @@ export default function UserDisplay(){
             setUserList(users);
             setLoading(false);
         }
-        fetchUsers()
-    },[])
+        // fetchUsers() deleted this , and added userListContext as dependency
+        setUserList(userListContext)
+    },[userListContext])
 
     useEffect(() => {
         setFilteredUserList(
@@ -58,14 +64,13 @@ export default function UserDisplay(){
     const paginatedUsers = filteredUserList.slice(startFrom, endOn)
 
 
-
     return(
         <div className="min-h-calc[(100vh - 4rem)] max-w-screen mt-2">
             
             <div className="w-full px-8 py-6 flex flex-col gap-3 pl-20">
 
                 <div className="flex justify-between w-full items-center">
-                    <h2 className="font-semibold text-3xl">Dashboard</h2>
+                    <h2 className="font-normal text-3xl">Dashboard</h2>
                     <button onClick={()=>router.push("/dashboard/add-user")}>
                         <div className="border-[1px] bg-black text-white text-lg px-3 py-2 cursor-pointer rounded-lg"> Add User </div>
                     </button>
