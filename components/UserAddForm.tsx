@@ -1,22 +1,40 @@
 "use client"
 import { useContext, useState } from "react";
-import { ArrowLeftFromLine, ArrowLeftFromLineIcon, Check, MapPinHouseIcon, PackageCheckIcon, User } from 'lucide-react';
+import { ArrowLeftFromLineIcon, Check, MapPinHouseIcon, PackageCheckIcon, User } from 'lucide-react';
 import { useRouter } from "next/navigation";
-import { UserContext } from "@/app/dashboard/layout";
+import {  User as UserType, UserContext } from "./ClientProvider";
+import { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime";
 
+interface FormData {
+    name : string;
+    email : string;
+    city : string;
+    street : string;
+    zip : number;
+}
+
+interface ErrorType {
+    name : boolean;
+    email : boolean;
+    street : boolean ;
+    city : boolean ;
+    zip : boolean ;
+}
 const UserAddForm = () =>{
     
-    const {userListContext, setUserListContext} = useContext(UserContext);
-    const router = useRouter()
-    const [step , setStep] = useState(1);
-    const [formData, setFormData] = useState<any>({
+    const {setUserListContext} = useContext(UserContext);
+
+    const router : AppRouterInstance= useRouter()
+
+    const [step , setStep] = useState<number>(1);
+    const [formData, setFormData] = useState<FormData>({
         name : "",
         email : "",
         city : "",
-        zip : "",
+        zip : 0,
         street : ""
     })
-    const [error, setError] = useState<any>({
+    const [error, setError] = useState<ErrorType>({
         name : false,
         email : false,
         street : false,
@@ -25,12 +43,17 @@ const UserAddForm = () =>{
     })
     const [ submitted, setSubmitted ] = useState<boolean>(false);
     const [stepOnePassed, setStepOnePassed] = useState<boolean>(false)
-    const handleInputChange = (e : any) => {
-        setFormData((prev : any)  => ({
+    const handleInputChange = (e : { 
+        target : {
+            name : string;
+            value : string
+        }
+    }) => {
+        setFormData((prev : FormData)  => ({
             ...prev, 
             [e.target.name] : e.target.value
         }))
-        setError((prev : any)=>({
+        setError((prev : ErrorType)=>({
             ...prev , 
             [e.target.name] : false
         }))
@@ -40,14 +63,14 @@ const UserAddForm = () =>{
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         let hasError = false;
         if(formData.name === ''){
-            setError((prev : any) =>({
+            setError((prev : ErrorType) =>({
                 ...prev , 
                 name : true
             }))
             hasError = true;
         }
         if(formData.email === '' || !emailRegex.test(formData.email)){
-            setError((prev : any) =>({
+            setError((prev : ErrorType) =>({
                 ...prev , 
                 email : true
             }))
@@ -56,7 +79,7 @@ const UserAddForm = () =>{
         return hasError;
     }
     
-    function handleStepOneNext(e : any){
+    function handleStepOneNext(e : { preventDefault : () => void}){
         e.preventDefault();
         if(!errorHandleFormOne()){
             if(step < 3) {
@@ -68,21 +91,21 @@ const UserAddForm = () =>{
     function errorHandleFormTwo(){
         let hasError = false;
         if(formData.street === ''){
-            setError((prev : any) =>({
+            setError((prev : ErrorType) =>({
                 ...prev , 
-                name : true
+                street : true
             }))
             hasError = true;
         }
         if(formData.city === ''){
-            setError((prev : any) =>({
+            setError((prev : ErrorType) =>({
                 ...prev , 
-                email : true
+                city : true
             }))
             hasError = true;
         }
-        if(formData.zip === ''){
-            setError((prev : any) =>({
+        if(formData.zip === 0){
+            setError((prev : ErrorType) =>({
                 ...prev , 
                 zip : true
             }))
@@ -91,38 +114,44 @@ const UserAddForm = () =>{
         return hasError;
     }
     
-    function handleStepTwoNext(e : any){
+    function handleStepTwoNext(e : { preventDefault : () => void}){
         e.preventDefault()
         if(!errorHandleFormTwo()){
             if(step < 3) setStep(step+1)
         }
     }
 
-    function handleSubmitForm(e : any){
+    function handleSubmitForm(e: { preventDefault: () => void; } ){
         e.preventDefault()
         setSubmitted(true)
         // use recoil to add the new user to the userList
         
-        const newUser = {
+        const newUser : {
+            id : number;
+            name : string;
+            email : string;
+            city : string ;
+            phone : string
+        }= {
             id : Math.ceil(Math.random()*(10000)),
             name : formData.name,
             email : formData.email,
             city: formData.city,
             phone : "XXX-XXX-XXXX"
         }
-        setUserListContext((prev : any)=>([ newUser , ...prev ]))
+        setUserListContext((prev: UserType[]) => ([ newUser, ...prev ]))
         alert(`${formData.name} added succesfully`)
         router.push("/dashboard")
     }
 
     function handleCancelForm(){
-        setFormData((prev : any)=>({
+        setFormData((prev :  FormData)=>({
             ...prev ,
             name : '',
             email : '',
             street : '',
             city : '',
-            zip : '',
+            zip : 0,
         }))
         setStep(1)
         setSubmitted(false)
@@ -133,7 +162,7 @@ const UserAddForm = () =>{
             <div className="flex flex-start w-3/4">
                 <button onClick={()=>router.push("/dashboard")}><div className="flex justify-center items-center gap-4 cursor-pointer text-lg text-gray-100 rounded-lg bg-black px-4 py-2 font-serif ">
                 <ArrowLeftFromLineIcon />    
-                Go To Dashboard
+                Back to Dashboard
             </div></button>
             </div>
             <div className="flex justify-around items-center mb-4 w-1/3">
@@ -224,8 +253,9 @@ const UserAddForm = () =>{
                         </div>
                     </div>
 
-                    <div className="flex flex-row-reverse pb-6 pr-10 ">
+                    <div className="flex flex-row-reverse pb-6 gap-3 pr-10 ">
                         <button className="border-[1px] bg-black text-white text-md  px-3 py-2 rounded-lg cursor-pointer" onClick={handleStepTwoNext}> Next </button>
+                        <button className="border-[1px] bg-red-700 text-white text-md  px-3 py-2 rounded-lg cursor-pointer" onClick={handleCancelForm}> Cancel</button>
                     </div>
                    </>
                 )}
@@ -238,10 +268,10 @@ const UserAddForm = () =>{
                     
                     <div className="py-6 flex flex-col gap-6">
                         <div className="pl-10 flex flex-col gap-1">
-                            <div><p>Name : {formData.name}</p></div>
+                            <div><p>Name : {formData.name.charAt(0).toUpperCase() + formData.name.slice(1)}</p></div>
                             <div><p>Email : {formData.email}</p></div>
-                            <div><p>Street : {formData.street}</p></div>
-                            <div><p>City : {formData.city}</p></div>
+                            <div><p>Street : {formData.street.charAt(0).toUpperCase() + formData.street.slice(1)}</p></div>
+                            <div><p>City : {formData.city.charAt(0).toUpperCase() + formData.city.slice(1)}</p></div>
                             <div><p>Zip Code : {formData.zip}</p></div>
                         </div>
                         <div>

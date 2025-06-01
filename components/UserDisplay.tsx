@@ -1,57 +1,49 @@
 "use client"
 
-import axios from "axios"
 import { useRouter } from "next/navigation";
 import { useContext, useEffect, useState } from "react"
 import Skeleton from "./Skeleton";
-import { UserContext } from "@/app/dashboard/layout";
+import { User, UserContext } from "./ClientProvider";
+import { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime";
+
 
 export default function UserDisplay(){
 
-    const [userList, setUserList] = useState<any>([])
+    const [userList, setUserList] = useState<User[]>([])
     const [searchWord, setSearchWord] = useState<string>("");
-    const [currentPage, setCurrentPage] = useState(1);
+    const [currentPage, setCurrentPage] = useState<number>(1);
     const [ loading , setLoading ] = useState<boolean>(false)
-    const [filteredUserList, setFilteredUserList] = useState<any>([]);
+    const [filteredUserList, setFilteredUserList] = useState<User[]>([]);
 
-    const {userListContext , setUserListContext}  = useContext(UserContext)
+    const { userListContext }   = useContext(UserContext)
 
-    const router = useRouter();
+    const router : AppRouterInstance= useRouter();
 
     useEffect(()=>{
-        async function fetchUsers(){
-            setLoading(true)
-            const res = await axios.get("https://jsonplaceholder.typicode.com/users")
-            const data : any = await res.data;
-
-            const users = data.map((user : any)=>({
-                id : user.id,
-                name : user.name,
-                email : user.email,
-                phone : user.phone,
-                city : user.address.city
-            }))
-            setUserList(users);
-            setLoading(false);
-        }
-        // fetchUsers() deleted this , and added userListContext as dependency
+        if(typeof(window) === "undefined") return;
         setUserList(userListContext)
     },[userListContext])
 
     useEffect(() => {
-        setFilteredUserList(
-            userList.filter((user: any) =>
-                user.name.toLowerCase().includes(searchWord.toLowerCase()) ||
-                user.city.toLowerCase().includes(searchWord.toLowerCase())
-            )
-        );
-        setCurrentPage(1)
+        if(typeof(window) === "undefined") return;
+        setLoading(true)
+        setTimeout(()=>{
+            // artificial loading for better UX
+            setFilteredUserList(
+                userList.filter((user: User) =>
+                    user.name.toLowerCase().includes(searchWord.toLowerCase()) ||
+                    user.city.toLowerCase().includes(searchWord.toLowerCase())
+                )
+            );
+            setCurrentPage(1)
+            setLoading(false)
+        } , 300)
     }, [userList, searchWord]);
     
     // Pagination
-    const usersPerPage = 5;
-    const totalPages = Math.ceil(userList.length / usersPerPage)
-    let totalPagesData = [];
+    const usersPerPage : number= 5;
+    const totalPages : number = Math.ceil(userList.length / usersPerPage)
+    let totalPagesData : { pageNumber : number }[] = [];
 
     for(let i =0; i<totalPages ; i++){
         totalPagesData.push({
@@ -59,9 +51,9 @@ export default function UserDisplay(){
         })
     }
 
-    const startFrom = (currentPage-1) * usersPerPage;
-    const endOn = startFrom + usersPerPage;
-    const paginatedUsers = filteredUserList.slice(startFrom, endOn)
+    const startFrom : number = (currentPage-1) * usersPerPage;
+    const endOn : number = startFrom + usersPerPage;
+    const paginatedUsers : User[] = filteredUserList.slice(startFrom, endOn)
 
 
     return(
@@ -79,8 +71,7 @@ export default function UserDisplay(){
                 <input type="text" onChange={(e)=>setSearchWord(e.target.value)} placeholder="Search for name, city..." className="border-[1px] py-2 border-black rounded-lg w-1/3 px-6"/>
             </div>
 
-            {loading && <Skeleton rows={8} columns={4} showHeader={true}/> }
-            {}
+            {loading && <Skeleton rows={8} columns={4} showHeader={true} className=""/> }
             <div className="mt-6 ">
                 <div className="w-full px-24 pb-2 text-md">
                     Showing {filteredUserList.length === 0 ? 0 : startFrom + 1} to {Math.min(endOn, filteredUserList.length)} users from total {filteredUserList.length} filtered users.

@@ -1,12 +1,19 @@
 
 import React from 'react';
 
+interface Skeleton {
+  rows : number;
+  columns : number;
+  showHeader: boolean;
+  className  : string | ""
+}
+
 const Skeleton= ({ 
   rows = 5, 
   columns = 4, 
   showHeader = true,
   className = "" 
-}) => {
+} : Skeleton) => {
   const SkeletonBar = ({ width = "100%" }) => (
     <div 
       className={`h-4 bg-gray-300 rounded animate-pulse`}
