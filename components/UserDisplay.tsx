@@ -56,6 +56,8 @@ export default function UserDisplay(){
     const paginatedUsers : User[] = filteredUserList.slice(startFrom, endOn)
 
 // adding changes to check CI pipeline
+
+
     return(
         <div className="min-h-calc[(100vh - 4rem)] max-w-screen mt-2">
             
